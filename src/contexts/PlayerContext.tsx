@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useState }  from 'react';
+import { createContext, ReactNode, useContext, useState }  from 'react';
 
 type Episode = {
   title: string;
@@ -12,8 +12,13 @@ type PlayerContextData = {
   currentEpisodeIndex: number;
   isPlaying: boolean;
   play: (episode: Episode) => void;
-  togglePlay: () => void;
   setPlayingState: (state: boolean) => void;
+  playList: (list: Episode[], index: number) => void;
+  togglePlay: () => void;
+  playNext: () => void;
+  playPrevious: () => void;
+  hasPrevious: boolean;
+  hasNext: boolean;
 }
 
 export const PlayerContext = createContext({} as PlayerContextData);
@@ -27,10 +32,33 @@ export function PlayerContextProvider({ children }: PlayerContextProviderProps) 
   const [currentEpisodeIndex, setCurrentEpisodeInde] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  function play(episode: Episode){
+  const hasPrevious = currentEpisodeIndex > 0;
+  const hasNext = (currentEpisodeIndex + 1) < episodeList.length;
+
+  function play(episode: Episode) {
     setEpisodeList([episode]);
     setCurrentEpisodeInde(0);
     setIsPlaying(true);
+  }
+
+  function playList(list: Episode[], index: number) {
+    setEpisodeList(list);
+    setCurrentEpisodeInde(index);
+    setIsPlaying(true);
+  }
+
+  function playNext() {
+    const nextEpisodeIndex = currentEpisodeIndex + 1;
+
+    if(hasNext) {
+      setCurrentEpisodeInde(nextEpisodeIndex);
+    }
+  }
+
+  function playPrevious() {
+    if(hasPrevious) {
+      setCurrentEpisodeInde(currentEpisodeIndex - 1);
+    }
   }
 
   function togglePlay() {
@@ -49,9 +77,18 @@ export function PlayerContextProvider({ children }: PlayerContextProviderProps) 
       play,
       isPlaying,
       togglePlay,
-      setPlayingState
+      setPlayingState,
+      playList,
+      playNext,
+      playPrevious,
+      hasNext,
+      hasPrevious
     }}>
       {children}
     </PlayerContext.Provider>
   )
+}
+
+export const usePlayer = () => {
+  return useContext(PlayerContext);
 }

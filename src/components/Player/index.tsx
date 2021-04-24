@@ -1,11 +1,11 @@
-import { useContext, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import Image from 'next/image';
 
-import Silder from 'rc-slider';
+import Silder, { Handle } from 'rc-slider';
 import 'rc-slider/assets/index.css';
 
-import { PlayerContext } from '../../contexts/PlayerContext';
+import {usePlayer } from '../../contexts/PlayerContext';
 
 import styles from './styles.module.scss';
 
@@ -17,8 +17,12 @@ export function Player() {
     currentEpisodeIndex,
     isPlaying,
     togglePlay,
-    setPlayingState
-  } = useContext(PlayerContext);
+    setPlayingState,
+    playNext,
+    playPrevious,
+    hasNext,
+    hasPrevious,
+  } = usePlayer();
 
   const episode = episodeList[currentEpisodeIndex]
 
@@ -91,7 +95,11 @@ export function Player() {
           <button type="button" disabled={!episode}>
             <img src="/shuffle.svg" alt="Embaralhar"/>
           </button>
-          <button type="button" disabled={!episode}>
+          <button
+            type="button"
+            disabled={!episode || !hasPrevious}
+            onClick={playPrevious}
+          >
             <img src="/play-previous.svg" alt="Tocar anterior"/>
           </button>
           <button
@@ -106,8 +114,12 @@ export function Player() {
               <img src="/play.svg" alt="Tocar"/>
             )}
           </button>
-          <button type="button" disabled={!episode}>
-            <img src="/play-next.svg" alt="Tocar próxima"/>
+          <button
+            type="button"
+            disabled={!episode || !hasNext}
+            onClick={playNext}>
+            <img src="/play-next.svg" alt="Tocar próxima"
+          />
           </button>
           <button type="button" disabled={!episode}>
             <img src="/repeat.svg" alt="Repetir"/>
